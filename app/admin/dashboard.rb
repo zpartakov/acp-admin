@@ -12,8 +12,8 @@ ActiveAdmin.register_page 'Dashboard' do
             column 'Membres', class: 'align-right' do |count|
               count.count.to_s.prepend(count.count_precision.to_s)
             end
-            column "#{Basket::SMALL} / #{Basket::BIG}", class: 'align-right' do |count|
-              [count.count_small_basket, count.count_big_basket].compact.join(' / ')
+            column "#{BasketSize.pluck(:name).join(' / ')}", class: 'align-right' do |count|
+              count.count_basket_sizes&.compact&.join(' / ')
             end
           end
         end
@@ -51,7 +51,7 @@ ActiveAdmin.register_page 'Dashboard' do
           table_for counts do
             column 'Lieu', :title
             column 'Paniers', :count, class: 'align-right'
-            column "#{Basket::SMALL} / #{Basket::BIG}", :baskets_count, class: 'align-right'
+            column "#{BasketSize.pluck(:name).join(' / ')}", :baskets_count, class: 'align-right'
           end
 
           jardin_count = counts.find { |c| c.title == 'Jardin de la Main' }
@@ -64,7 +64,7 @@ ActiveAdmin.register_page 'Dashboard' do
             OpenStruct.new(
               title: 'Paniers à préparer',
               count: "Total: #{other_counts.sum(&:count)}",
-              baskets_count: "Totaux: #{other_counts.sum(&:count_small_basket)} / #{other_counts.sum(&:count_big_basket)}")
+              baskets_count: "Totaux: #{other_counts.sum { |c| c.basket_sizes_count[0] }} / #{other_counts.sum { |c| c.basket_sizes_count[1] }}")
           ]
           table_for totals do
             column nil, :title
@@ -79,7 +79,8 @@ ActiveAdmin.register_page 'Dashboard' do
             end
             column(class: 'align-right') { "Total: #{counts.sum(&:count)}" }
             column(class: 'align-right') do
-              "Totaux: #{counts.sum(&:count_small_basket)} / #{counts.sum(&:count_big_basket)}"
+
+              "Totaux: #{counts.sum { |c| c.basket_sizes_count[0] }} / #{counts.sum { |c| c.basket_sizes_count[1] }}"
             end
           end
 
