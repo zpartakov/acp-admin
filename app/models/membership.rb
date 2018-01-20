@@ -23,10 +23,10 @@ class Membership < ActiveRecord::Base
   after_update :update_baskets
   after_commit :update_trial_baskets_and_user_state!
 
-  scope :started, -> { where('started_on < ?', Time.zone.now) }
-  scope :past, -> { where('ended_on < ?', Time.zone.now) }
-  scope :future, -> { where('started_on > ?', Time.zone.now) }
-  scope :current, -> { including_date(Time.zone.today) }
+  scope :started, -> { where('started_on < ?', Time.current) }
+  scope :past, -> { where('ended_on < ?', Time.current) }
+  scope :future, -> { where('started_on > ?', Time.current) }
+  scope :current, -> { including_date(Date.current) }
   scope :current_year, -> { during_year(Date.current.year) }
   scope :including_date, ->(date) { where('started_on <= ? AND ended_on >= ?', date, date) }
   scope :duration_gt, ->(days) { where("age(ended_on, started_on) > interval '? day'", days) }
@@ -38,7 +38,7 @@ class Membership < ActiveRecord::Base
   }
 
   def self.billable
-    during_year(Time.zone.today.year)
+    during_year(Date.current.year)
       .started
       .includes(
         member: [:current_membership, :first_membership, :current_year_invoices]
@@ -55,7 +55,7 @@ class Membership < ActiveRecord::Base
   end
 
   def current?
-    started_on <= Time.zone.today && ended_on >= Time.zone.today
+    started_on <= Date.current && ended_on >= Date.current
   end
 
   def can_destroy?
@@ -159,7 +159,7 @@ class Membership < ActiveRecord::Base
   end
 
   def renew!
-    renew_year = Time.zone.today.next_year
+    renew_year = Date.current.next_year
     last_basket = baskets.last
     Membership.create!(
       member: member,

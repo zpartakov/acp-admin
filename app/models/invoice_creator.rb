@@ -5,7 +5,7 @@ class InvoiceCreator
     @member = member
     @membership = member.current_year_membership
     @invoices = member.invoices.not_canceled.current_year
-    @date = Time.zone.today
+    @date = Date.current
   end
 
   def create
@@ -46,7 +46,7 @@ class InvoiceCreator
   end
 
   def membership_not_started?
-    membership.started_on > Time.zone.now
+    membership.started_on > Time.current
   end
 
   def membership_amount_description

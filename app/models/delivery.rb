@@ -1,19 +1,15 @@
 class Delivery < ActiveRecord::Base
+  include HasFiscalYearScopes
+
   default_scope { order(:date) }
 
   has_one :gribouille
   has_many :baskets
   has_many :basket_contents
 
-  scope :past_year, -> { where("EXTRACT(YEAR FROM date) < #{Date.current.year}") }
-  scope :current_year, -> { where("EXTRACT(YEAR FROM date) = #{Date.current.year}") }
-  scope :future_year, -> { where("EXTRACT(YEAR FROM date) > #{Date.current.year}") }
-
-  scope :past, -> { where('date < ?', Time.zone.today) }
-  scope :coming, -> { where('date >= ?', Time.zone.today) }
-  scope :between, ->(range) {
-    where('date >= ? AND date <= ?', range.first, range.last)
-  }
+  scope :past, -> { where('date < ?', Date.current) }
+  scope :coming, -> { where('date >= ?', Date.current) }
+  scope :between, ->(range) { where(date: range) }
 
   def self.create_all(count, first_date)
     date = first_date

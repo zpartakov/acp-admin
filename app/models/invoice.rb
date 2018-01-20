@@ -15,7 +15,7 @@ class Invoice < ActiveRecord::Base
 
   has_one_attached :pdf_file
 
-  scope :current_year, -> { during_year(Time.zone.today.year) }
+  scope :current_year, -> { during_year(Date.current.year) }
   scope :during_year, ->(year) {
     date = Date.new(year)
     where('date >= ? AND date <= ?', date.beginning_of_year, date.end_of_year)

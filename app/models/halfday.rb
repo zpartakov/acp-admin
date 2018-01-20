@@ -3,9 +3,9 @@ class Halfday < ActiveRecord::Base
 
   has_many :participations, class_name: 'HalfdayParticipation'
 
-  scope :coming, -> { where('date > ?', Time.zone.today) }
+  scope :coming, -> { where('date > ?', Date.current) }
   scope :available, -> { where('date >= ?', 3.days.from_now) }
-  scope :past, -> { where('date < ?', Time.zone.today) }
+  scope :past, -> { where('date <= ?', Date.current) }
 
   validates :date, :start_time, :end_time, presence: true
   validates :place, :activity, presence: true, unless: :use_preset?

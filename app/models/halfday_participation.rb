@@ -10,21 +10,13 @@ class HalfdayParticipation < ActiveRecord::Base
 
   scope :validated, -> { where(state: 'validated') }
   scope :rejected, -> { where(state: 'rejected') }
-  scope :pending, -> do
-    joins(:halfday).where('halfdays.date <= ?', Time.zone.today).where(state: 'pending')
-  end
-  scope :coming, -> { joins(:halfday).where('halfdays.date > ?', Time.zone.today) }
-  scope :past, -> do
-    joins(:halfday).where(
-      'halfdays.date < ? AND halfdays.date >= ?',
-      Time.zone.today,
-      Time.zone.today.beginning_of_year)
-  end
+  scope :pending, -> {
+    joins(:halfday).merge(Halfday.past).where(state: 'pending')
+  }
+  scope :coming, -> { joins(:halfday).merge(Halfday.coming) }
   scope :during_year, ->(year) {
-    joins(:halfday).where(
-      'halfdays.date >= ? AND halfdays.date <= ?',
-      Date.new(year).beginning_of_year,
-      Date.new(year).end_of_year)
+    joins(:halfday)
+      .where(halfdays: { date: Current.acp.fiscal_year_for(year).range })
   }
   scope :carpooling, ->(date) {
     joins(:halfday).where(halfdays: { date: date }).where.not(carpooling_phone: nil)

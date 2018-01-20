@@ -10,13 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_01_10_202513) do
+ActiveRecord::Schema.define(version: 2018_01_19_193710) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
   enable_extension "plpgsql"
 
-  create_table "absences", id: :serial, force: :cascade do |t|
+  create_table "absences", id: :integer, default: nil, force: :cascade do |t|
     t.integer "member_id"
     t.date "started_on"
     t.date "ended_on"
@@ -36,11 +36,12 @@ ActiveRecord::Schema.define(version: 2018_01_10_202513) do
     t.string "email_api_token"
     t.string "email_default_host"
     t.string "email_default_from"
+    t.integer "fiscal_year_start_month", default: 1, null: false
     t.index ["host"], name: "index_acps_on_host"
     t.index ["tenant_name"], name: "index_acps_on_tenant_name"
   end
 
-  create_table "active_admin_comments", id: :serial, force: :cascade do |t|
+  create_table "active_admin_comments", id: :integer, default: nil, force: :cascade do |t|
     t.string "namespace", limit: 255
     t.text "body"
     t.string "resource_id", limit: 255, null: false
@@ -75,7 +76,7 @@ ActiveRecord::Schema.define(version: 2018_01_10_202513) do
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
-  create_table "admins", id: :serial, force: :cascade do |t|
+  create_table "admins", id: :integer, default: nil, force: :cascade do |t|
     t.string "email", limit: 255, default: "", null: false
     t.string "encrypted_password", limit: 255, default: "", null: false
     t.string "reset_password_token", limit: 255
@@ -95,7 +96,7 @@ ActiveRecord::Schema.define(version: 2018_01_10_202513) do
     t.index ["reset_password_token"], name: "index_admins_on_reset_password_token", unique: true
   end
 
-  create_table "basket_contents", id: :serial, force: :cascade do |t|
+  create_table "basket_contents", id: :integer, default: nil, force: :cascade do |t|
     t.integer "delivery_id", null: false
     t.integer "vegetable_id", null: false
     t.decimal "quantity", precision: 8, scale: 2, null: false
@@ -120,7 +121,7 @@ ActiveRecord::Schema.define(version: 2018_01_10_202513) do
     t.index ["distribution_id"], name: "index_basket_contents_distributions_on_distribution_id"
   end
 
-  create_table "basket_sizes", id: :serial, force: :cascade do |t|
+  create_table "basket_sizes", id: :integer, default: nil, force: :cascade do |t|
     t.string "name", limit: 255, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -148,7 +149,7 @@ ActiveRecord::Schema.define(version: 2018_01_10_202513) do
     t.index ["membership_id"], name: "index_baskets_on_membership_id"
   end
 
-  create_table "deliveries", id: :serial, force: :cascade do |t|
+  create_table "deliveries", id: :integer, default: nil, force: :cascade do |t|
     t.date "date", null: false
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -156,7 +157,7 @@ ActiveRecord::Schema.define(version: 2018_01_10_202513) do
     t.index ["date"], name: "index_deliveries_on_date"
   end
 
-  create_table "distributions", id: :serial, force: :cascade do |t|
+  create_table "distributions", id: :integer, default: nil, force: :cascade do |t|
     t.string "name", limit: 255
     t.string "address", limit: 255
     t.string "zip", limit: 255
@@ -167,7 +168,7 @@ ActiveRecord::Schema.define(version: 2018_01_10_202513) do
     t.string "emails"
   end
 
-  create_table "gribouilles", id: :serial, force: :cascade do |t|
+  create_table "gribouilles", id: :integer, default: nil, force: :cascade do |t|
     t.integer "delivery_id", null: false
     t.text "header"
     t.text "basket_content"
@@ -180,7 +181,7 @@ ActiveRecord::Schema.define(version: 2018_01_10_202513) do
     t.index ["delivery_id"], name: "index_gribouilles_on_delivery_id"
   end
 
-  create_table "halfday_participations", id: :serial, force: :cascade do |t|
+  create_table "halfday_participations", id: :integer, default: nil, force: :cascade do |t|
     t.integer "halfday_id", null: false
     t.integer "member_id", null: false
     t.integer "validator_id"
@@ -196,7 +197,7 @@ ActiveRecord::Schema.define(version: 2018_01_10_202513) do
     t.index ["validator_id"], name: "index_halfday_participations_on_validator_id"
   end
 
-  create_table "halfdays", id: :serial, force: :cascade do |t|
+  create_table "halfdays", id: :integer, default: nil, force: :cascade do |t|
     t.date "date", null: false
     t.time "start_time", null: false
     t.time "end_time", null: false
@@ -211,7 +212,7 @@ ActiveRecord::Schema.define(version: 2018_01_10_202513) do
     t.index ["start_time"], name: "index_halfdays_on_start_time"
   end
 
-  create_table "invoices", id: :serial, force: :cascade do |t|
+  create_table "invoices", id: :integer, default: nil, force: :cascade do |t|
     t.integer "member_id", null: false
     t.date "date", null: false
     t.decimal "balance", precision: 8, scale: 2, default: "0.0", null: false
@@ -234,7 +235,7 @@ ActiveRecord::Schema.define(version: 2018_01_10_202513) do
     t.index ["state"], name: "index_invoices_on_state"
   end
 
-  create_table "members", id: :serial, force: :cascade do |t|
+  create_table "members", id: :integer, default: nil, force: :cascade do |t|
     t.string "emails", limit: 255
     t.string "phones", limit: 255
     t.string "address", limit: 255
@@ -273,7 +274,7 @@ ActiveRecord::Schema.define(version: 2018_01_10_202513) do
     t.index ["welcome_email_sent_at"], name: "index_members_on_welcome_email_sent_at"
   end
 
-  create_table "memberships", id: :serial, force: :cascade do |t|
+  create_table "memberships", id: :integer, default: nil, force: :cascade do |t|
     t.integer "member_id", null: false
     t.decimal "halfday_works_annual_price", precision: 8, scale: 2, default: "0.0", null: false
     t.integer "annual_halfday_works", default: 0, null: false
@@ -307,7 +308,7 @@ ActiveRecord::Schema.define(version: 2018_01_10_202513) do
     t.index ["member_id"], name: "index_payments_on_member_id"
   end
 
-  create_table "vegetables", id: :serial, force: :cascade do |t|
+  create_table "vegetables", id: :integer, default: nil, force: :cascade do |t|
     t.string "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

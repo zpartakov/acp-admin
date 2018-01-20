@@ -16,14 +16,14 @@ class Member < ActiveRecord::Base
   has_many :absences
   has_many :invoices
   has_many :payments
-  has_many :current_year_invoices, -> { during_year(Time.zone.today.year) },
+  has_many :current_year_invoices, -> { during_year(Date.current.year) },
     class_name: 'Invoice'
   has_many :halfday_participations
   has_many :memberships
   has_one :first_membership, -> { order(:started_on) }, class_name: 'Membership'
   has_one :current_membership, -> { current }, class_name: 'Membership'
   has_one :current_year_membership,
-    -> { during_year(Time.zone.today.year) },
+    -> { during_year(Date.current.year) },
     class_name: 'Membership'
   has_one :future_membership,
     -> { future },
@@ -188,14 +188,14 @@ class Member < ActiveRecord::Base
 
   def halfday_works(year = nil)
     @annual_halfday_works ||= begin
-      year ||= Time.zone.today.year
+      year ||= Date.current.year
       memberships.during_year(year).first&.halfday_works.to_i
     end
   end
 
   def validated_halfday_works(year = nil)
     @validated_halfday_works ||= begin
-      year ||= Time.zone.today.year
+      year ||= Date.current.year
       halfday_participations.during_year(year).validated.sum(&:participants_count)
     end
   end
