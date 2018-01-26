@@ -54,6 +54,7 @@ class Ability
       Absence,
       Basket,
       BasketSize,
+      BasketComplement,
       ActiveAdmin::Page,
       ActiveAdmin::Comment,
       Delivery,

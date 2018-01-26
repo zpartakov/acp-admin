@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_01_19_193710) do
+ActiveRecord::Schema.define(version: 2018_01_21_105433) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
@@ -96,6 +96,29 @@ ActiveRecord::Schema.define(version: 2018_01_19_193710) do
     t.index ["reset_password_token"], name: "index_admins_on_reset_password_token", unique: true
   end
 
+  create_table "basket_complements", force: :cascade do |t|
+    t.string "name", null: false
+    t.decimal "price", precision: 8, scale: 3, default: "0.0", null: false
+  end
+
+  create_table "basket_complements_baskets", force: :cascade do |t|
+    t.bigint "basket_complement_id", null: false
+    t.bigint "basket_id", null: false
+    t.index ["basket_complement_id", "basket_id"], name: "basket_complements_baskets_unique_index", unique: true
+  end
+
+  create_table "basket_complements_deliveries", force: :cascade do |t|
+    t.bigint "basket_complement_id", null: false
+    t.bigint "delivery_id", null: false
+    t.index ["basket_complement_id", "delivery_id"], name: "basket_complements_deliveries_unique_index", unique: true
+  end
+
+  create_table "basket_complements_memberships", force: :cascade do |t|
+    t.bigint "basket_complement_id", null: false
+    t.bigint "membership_id", null: false
+    t.index ["basket_complement_id", "membership_id"], name: "basket_complements_memberships_unique_index", unique: true
+  end
+
   create_table "basket_contents", id: :serial, force: :cascade do |t|
     t.integer "delivery_id", null: false
     t.integer "vegetable_id", null: false
@@ -142,6 +165,7 @@ ActiveRecord::Schema.define(version: 2018_01_19_193710) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "deleted_at"
+    t.jsonb "complement_prices", default: {}, null: false
     t.index ["basket_size_id"], name: "index_baskets_on_basket_size_id"
     t.index ["delivery_id"], name: "index_baskets_on_delivery_id"
     t.index ["distribution_id"], name: "index_baskets_on_distribution_id"

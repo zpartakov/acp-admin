@@ -6,8 +6,10 @@ module XLSX
       @delivery = delivery
       @distribution = distribution
       @baskets = @delivery.baskets.not_absent
+      @complements = BasketComplement.all
       @distributions = Distribution.where id: @baskets.pluck(:distribution_id).uniq
       @basket_sizes = BasketSize.all
+      @basket_sizes_count = @basket_sizes.count
 
       build_recap_worksheet('Récap') unless @distribution
 
@@ -32,6 +34,10 @@ module XLSX
 
       cols = ['', 'Total']
       cols += @basket_sizes.pluck(:name)
+      if @complements.any?
+        cols += ['']
+        cols += @complements.pluck(:name)
+      end
       add_header(*cols)
 
       @distributions.each do |distribution|
@@ -64,6 +70,12 @@ module XLSX
         @worksheet.change_column_width(2 + i, 12)
         @worksheet.change_column_horizontal_alignment(2 + i, 'right')
       end
+      if @complements.any?
+        @complements.each_with_index do |basket_size, i|
+          @worksheet.change_column_width(3 + @basket_sizes_count + i, 12)
+          @worksheet.change_column_horizontal_alignment(3 + @basket_sizes_count + i, 'right')
+        end
+      end
     end
 
     def add_baskets_line(descritption, baskets, bold: false)
@@ -72,6 +84,11 @@ module XLSX
       @basket_sizes.each_with_index do |basket_size, i|
         amount = baskets.where(basket_size_id: basket_size.id).count
         @worksheet.add_cell(@line, 2 + i, amount).set_number_format('0')
+      end
+      basket_complement_ids = baskets.flat_map(&:basket_complement_ids)
+      @complements.each_with_index do |complement, i|
+        amount = basket_complement_ids.count { |id| id == complement.id}
+        @worksheet.add_cell(@line, 3 + @basket_sizes_count + i, amount).set_number_format('0')
       end
       @worksheet.change_row_bold(@line, bold)
 

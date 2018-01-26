@@ -29,12 +29,12 @@ ActiveAdmin.register Membership do
     columns do
       column do
         panel "#{m.baskets_count} Paniers" do
-          table_for(m.baskets.includes(:delivery, :basket_size, :distribution),
+          table_for(m.baskets.includes(:delivery, :basket_size, :distribution, :basket_complements, :baskets_basket_complements),
             row_class: ->(b) { 'next' if b.next? },
             class: 'table-baskets'
           ) do |basket|
             column(:delivery)
-            column(:basket_size)
+            column(:description)
             column(:distribution)
             column(class: 'col-status') { |b|
               status_tag(:trial) if b.trial?
@@ -48,12 +48,23 @@ ActiveAdmin.register Membership do
       end
 
       column do
-        attributes_table title: "Détails" do
+        attributes_table title: 'Détails' do
           row :id
           row :member
           row(:started_on) { l m.started_on }
           row(:ended_on) { l m.ended_on }
           row :renew
+        end
+
+        if BasketComplement.any?
+          panel 'Compléments Panier' do
+            names = m.subscribed_basket_complements.pluck(:name)
+            if names.present?
+              names.to_sentence
+            else
+              em 'Aucun'
+            end
+          end
         end
 
         attributes_table title: "½ journées" do
@@ -62,7 +73,7 @@ ActiveAdmin.register Membership do
           row :validated_halfday_works
         end
 
-        attributes_table title: "Facturation" do
+        attributes_table title: 'Facturation' do
           if m.member.try(:salary_basket?)
             em 'Gratuit, panier salaire'
           elsif m.baskets_count.zero?
@@ -71,6 +82,11 @@ ActiveAdmin.register Membership do
             row(:basket_total_price) {
               "#{number_to_currency(m.basket_total_price)} (#{m.basket_total_price_details})"
             }
+            if BasketComplement.any?
+              row(:basket_complements_total_price) {
+                "#{number_to_currency(m.basket_complements_total_price)} (#{m.basket_complements_total_price_details})"
+              }
+            end
             row(:distribution_total_price) {
               "#{number_to_currency(m.distribution_total_price)} (#{m.distribution_total_price_details})"
             }
@@ -101,6 +117,12 @@ ActiveAdmin.register Membership do
         collection: BasketSize.all,
         include_blank: !resource.new_record?,
         hint: !resource.new_record? && 'Seulement les paniers à venir seront modifiés.'
+      if BasketComplement.any?
+        f.input :subscribed_basket_complement_ids,
+          as: :check_boxes,
+          collection: BasketComplement.all,
+          hint: !resource.new_record? && 'Seulement les paniers à venir seront modifiés en fonction des livraisons agendées pour les compléments de panier.'
+      end
       f.input :distribution_id,
         as: :select,
         collection: Distribution.all,
@@ -116,12 +138,13 @@ ActiveAdmin.register Membership do
     f.actions
   end
 
-  permit_params *%i[
-    member_id
-    basket_size_id distribution_id
-    started_on ended_on renew
-    halfday_works_annual_price annual_halfday_works
-  ]
+  permit_params \
+    :member_id,
+    :basket_size_id, :distribution_id,
+    :started_on, :ended_on, :renew,
+    :halfday_works_annual_price, :annual_halfday_works,
+    subscribed_basket_complement_ids: []
+  includes :member, :delivered_baskets
 
   controller do
     def build_resource
@@ -133,10 +156,6 @@ ActiveAdmin.register Membership do
       resource.started_on ||= params[:started_on] || fy_range.min
       resource.ended_on ||= fy_range.max
       resource
-    end
-
-    def scoped_collection
-      Membership.includes(:member, :delivered_baskets)
     end
   end
 
