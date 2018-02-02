@@ -1,6 +1,5 @@
-require File.expand_path('../boot', __FILE__)
+require_relative 'boot'
 
-# Pick the frameworks you want:
 require 'rails/all'
 
 # Require the gems listed in Gemfile, including any gems
@@ -13,8 +12,9 @@ module ACPAdmin
     config.load_defaults 5.2
 
     # Settings in config/environments/* take precedence over those specified here.
-    # Application configuration should go into files in config/initializers
-    # -- all .rb files in that directory are automatically loaded.
+    # Application configuration can go into files in config/initializers
+    # -- all .rb files in that directory are automatically loaded after loading
+    # the framework and any gems in your application.
 
     # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.
     # Run "rake -D time" for a list of tasks for finding time zone names. Default is UTC.

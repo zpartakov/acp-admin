@@ -1,8 +1,6 @@
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
-  # Store files locally.
-  config.active_storage.service = :test
   config.active_job.queue_adapter = :inline
 
   # The test environment is used exclusively to run your application's
@@ -31,6 +29,9 @@ Rails.application.configure do
 
   # Disable request forgery protection in test environment.
   config.action_controller.allow_forgery_protection = false
+
+  # Store uploaded files on the local file system in a temporary directory
+  config.active_storage.service = :test
 
   config.action_mailer.perform_caching = false
 

@@ -7,7 +7,7 @@ end
 
 ruby '2.4.3'
 
-gem 'rails', '5.2.0.beta2'
+gem 'rails', '5.2.0.rc1'
 gem 'bootsnap', require: false
 
 gem 'rails-i18n'
@@ -15,7 +15,7 @@ gem 'puma'
 
 gem 'rack-status'
 
-gem 'pg', '~> 0.21'
+gem 'pg'
 gem 'uniquify'
 gem 'paranoia'
 gem 'phony_rails'
