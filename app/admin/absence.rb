@@ -6,6 +6,7 @@ ActiveAdmin.register Absence do
   scope :current
   scope :future
 
+  includes :member
   index do
     column :member do |absence|
       link_to absence.member.name, absence.member
@@ -61,10 +62,6 @@ ActiveAdmin.register Absence do
       resource.started_on ||= Date.current
       resource.ended_on ||= Date.current
       resource
-    end
-
-    def scoped_collection
-      Absence.includes(:member)
     end
   end
 
