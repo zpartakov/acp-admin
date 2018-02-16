@@ -167,7 +167,7 @@ class Membership < ActiveRecord::Base
   end
 
   def basket_sizes_description
-    "Panier: #{basket_sizes_price_info}"
+    "Paniers: #{basket_sizes_price_info}"
   end
 
   def baskets_annual_price_change_description

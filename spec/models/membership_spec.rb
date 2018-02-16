@@ -168,7 +168,7 @@ describe Membership do
 
     expect(membership.basket_sizes_price).to eq 40 * 23.125
     expect(membership.basket_sizes_price_info).to eq '40 x 23.125'
-    expect(membership.basket_sizes_description).to eq 'Panier: 40 x 23.125'
+    expect(membership.basket_sizes_description).to eq 'Paniers: 40 x 23.125'
     expect(membership.distributions_price).to be_zero
     expect(membership.distributions_price_info).to be_blank
     expect(membership.distribution_description).to eq 'Distribution: gratuite'
@@ -211,7 +211,7 @@ describe Membership do
       basket_price: 42,
       basket_quantity: 3)
 
-    expect(membership.basket_sizes_description).to eq 'Panier: 120 x 42.00'
+    expect(membership.basket_sizes_description).to eq 'Paniers: 120 x 42.00'
     expect(membership.distribution_description).to eq 'Distribution: 120 x 3.20'
     expect(membership.basket_sizes_price).to eq 40 * 3 * 42
     expect(membership.distributions_price).to eq 40 * 3 * 3.2
@@ -279,7 +279,7 @@ describe Membership do
       seasons: ['summer'])
 
     expect(membership.baskets_count).to eq 40
-    expect(membership.basket_sizes_description).to eq 'Panier: 44 x 30.00'
+    expect(membership.basket_sizes_description).to eq 'Paniers: 44 x 30.00'
     expect(membership.basket_sizes_price).to eq 22 * 2 * 30
   end
 

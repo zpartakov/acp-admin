@@ -18,6 +18,8 @@ RSpec.configure do |config|
       FactoryBot.create(:acp, host: 'ragedevert', tenant_name: 'ragedevert')
     end
     Apartment::Tenant.switch('ragedevert') do
+      logo = File.open(Rails.root.join("spec/fixtures/rdv_logo.jpg"))
+      Current.acp.logo.attach io: logo, filename: 'logo.jpg', content_type: 'image/jpg'
       Delivery.delete_all
       date = Current.fiscal_year.beginning_of_year + 2.weeks
       Delivery.create_all(40, date - 1.year)
@@ -30,6 +32,7 @@ RSpec.configure do |config|
     Apartment::Tenant.switch('ragedevert') do
       example.run
     end
+    Current.reset
   end
 
   config.before(:each, type: :system) do

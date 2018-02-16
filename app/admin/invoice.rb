@@ -72,7 +72,7 @@ ActiveAdmin.register Invoice do
   end
 
   action_item :pdf, only: :show do
-    link_to 'PDF', rails_blob_path(resource.pdf_file, disposition: 'attachment')
+    link_to 'PDF', rails_blob_path(resource.pdf_file, disposition: 'inline')
   end
 
   action_item :send_email, only: :show, if: -> { authorized?(:send_email, resource) } do

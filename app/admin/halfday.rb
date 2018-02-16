@@ -64,7 +64,7 @@ ActiveAdmin.register Halfday do
 
   controller do
     def create
-      overwrite_date_of_time_params
+      # overwrite_date_of_time_params
       super do |format|
         redirect_to collection_url and return if resource.valid?
       end
