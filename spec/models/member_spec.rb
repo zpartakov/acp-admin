@@ -30,6 +30,13 @@ describe Member do
       )
       expect(member).to be_valid
     end
+
+    it 'only accepts ACP billing_year_divisions' do
+      Current.acp.billing_year_divisions = [1, 12]
+      member = Member.new(billing_year_division: 3)
+
+      expect(member).not_to have_valid(:billing_year_division)
+    end
   end
 
   it 'sets state and waiting_started_at if basket_size/distribution present on creation' do
@@ -65,12 +72,14 @@ describe Member do
   end
 
   describe '#support_member=' do
-    let(:member) { create(:member) }
-
-    it 'sets billing_interval to annual' do
-      member.billing_interval = 'quarterly'
+    it 'sets state to inactive and clear waiting columns' do
+      member = create(:member, :waiting)
       member.update(support_member: '1')
-      expect(member.billing_interval).to eq 'annual'
+      expect(member.state).to eq 'inactive'
+      expect(member.waiting_started_at).to be_nil
+      expect(member.waiting_basket_size_id).to be_nil
+      expect(member.waiting_distribution_id).to be_nil
+      expect(member.support_member).to eq true
     end
   end
 

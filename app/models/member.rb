@@ -30,18 +30,20 @@ class Member < ActiveRecord::Base
     source: :delivered_baskets,
     class_name: 'Basket'
 
+  scope :billable, -> { where(state: [ACTIVE_STATE, INACTIVE_STATE]) }
   scope :support, -> { inactive.where(support_member: true) }
   scope :with_name, ->(name) { where('members.name ILIKE ?', "%#{name}%") }
   scope :with_address, ->(address) { where('members.address ILIKE ?', "%#{address}%") }
   scope :gribouille, -> {
-    where(state: [WAITING_STATE, TRIAL_STATE, ACTIVE_STATE]).where(gribouille: [nil, true])
+    where(state: [WAITING_STATE, TRIAL_STATE, ACTIVE_STATE])
+      .where(gribouille: [nil, true])
       .or(Member.where(support_member: true).where(gribouille: [nil, true]))
       .or(Member.where(gribouille: true))
   }
 
-  validates :billing_interval,
+  validates :billing_year_division,
     presence: true,
-    inclusion: { in: BILLING_INTERVALS }
+    inclusion: { in: ->(_) { Current.acp.billing_year_divisions } }
   validates :name, presence: true
   validates :emails, presence: true,
     if: ->(member) { member.read_attribute(:gribouille) }
@@ -62,13 +64,8 @@ class Member < ActiveRecord::Base
     gribouille.select(:emails).map(&:emails_array).flatten.uniq.compact
   end
 
-  def self.billable
-    includes = %i[
-      current_membership
-      current_year_membership
-      current_year_invoices
-    ]
-    Member.includes(*includes).all.select(&:billable?)
+  def billable?
+    active? || inactive?
   end
 
   def name=(name)
@@ -127,7 +124,6 @@ class Member < ActiveRecord::Base
   def support_member=(bool)
     if bool == '1'
       self.state = INACTIVE_STATE
-      self.billing_interval = 'annual'
       self.waiting_started_at = nil
       self.waiting_basket_size_id = nil
       self.waiting_distribution_id = nil
@@ -149,6 +145,7 @@ class Member < ActiveRecord::Base
     invalid_transition(:remove_from_waiting_list) unless waiting?
     update!(
       state: INACTIVE_STATE,
+      support_member: false,
       waiting_started_at: nil)
   end
 
@@ -156,13 +153,13 @@ class Member < ActiveRecord::Base
     invalid_transition(:wait!) unless inactive?
     update!(
       state: WAITING_STATE,
+      support_member: false,
       waiting_started_at: Time.current)
   end
 
   def absent?(date)
     absences.any? { |absence| absence.period.include?(date) }
   end
-
 
   def halfday_works(year = nil)
     @annual_halfday_works ||= begin
@@ -195,19 +192,6 @@ class Member < ActiveRecord::Base
   end
 
   alias_method :waiting, :waiting?
-
-  def billable?
-    support_member? ||
-      (!salary_basket? && !trial? && current_year_membership.present?) ||
-      (trial? && !current_membership) ||
-      (trial? && Delivery.next.fy_year > Current.fy_year)
-  end
-
-  def support_billable?
-    support_member? ||
-        (!salary_basket? && current_year_membership &&
-          current_year_membership.baskets_count > Current.acp.trial_basket_count)
-  end
 
   private
 

@@ -6,6 +6,7 @@ ActiveAdmin.register Member do
   scope :waiting
   scope :trial, if: ->(_) { Current.acp.trial_basket_count.positive? }
   scope :active, default: true
+  scope :support
   scope :inactive
 
   index do
@@ -131,7 +132,7 @@ ActiveAdmin.register Member do
           end
         end
         attributes_table title: 'Facturation' do
-          row(:billing_interval) { t("member.billing_interval.#{member.billing_interval}") }
+          row(:billing_year_division) { t("billing.year_division._#{member.billing_year_division}") }
           row(:salary_basket) { member.salary_basket? ? 'oui' : 'non' }
           row(:support_member) { member.support_member ? 'oui' : 'non' }
           row(:support_price) { number_to_currency member.support_price }
@@ -160,7 +161,9 @@ ActiveAdmin.register Member do
   filter :city, as: :select, collection: -> {
     Member.pluck(:city).uniq.map(&:presence).compact.sort
   }
-  filter :billing_interval, as: :select, collection: Member::BILLING_INTERVALS.map { |i| [I18n.t("member.billing_interval.#{i}"), i] }
+  filter :billing_year_division,
+    as: :select,
+    collection: -> { Current.acp.billing_year_divisions.map { |i| [I18n.t("billing.year_division._#{i}"), i] } }
 
   form do |f|
     f.inputs 'Details' do
@@ -196,8 +199,9 @@ ActiveAdmin.register Member do
       end
     end
     f.inputs 'Facturation' do
-      f.input :billing_interval,
-        collection: Member::BILLING_INTERVALS.map { |i| [I18n.t("member.billing_interval.#{i}"), i] },
+      f.input :billing_year_division,
+        as: :select,
+        collection: Current.acp.billing_year_divisions.map { |i| [I18n.t("billing.year_division._#{i}"), i] },
         include_blank: false
       f.input :support_member, hint: 'Paye la cotisation annuelle même si aucun abonnement'
       f.input :support_price
@@ -215,13 +219,13 @@ ActiveAdmin.register Member do
   permit_params \
     :name, :address, :city, :zip, :emails, :phones, :gribouille,
     :delivery_address, :delivery_city, :delivery_zip,
-    :support_member, :salary_basket, :billing_interval, :waiting,
+    :support_member, :salary_basket, :billing_year_division, :waiting,
     :waiting_basket_size_id, :waiting_distribution_id,
     :profession, :come_from, :food_note, :note,
     waiting_basket_complement_ids: []
 
   action_item :create_invoice, only: :show, if: -> { authorized?(:create_invoice, resource) } do
-    link_to 'Créer facture', create_invoice_member_path(resource), method: :post
+    link_to 'Facturer', create_invoice_member_path(resource), method: :post
   end
   action_item :validate, only: :show, if: -> { authorized?(:validate, resource) } do
     link_to 'Valider', validate_member_path(resource), method: :post
