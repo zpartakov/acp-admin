@@ -21,8 +21,12 @@ section
           = " (#{t('halfday.participant_count', count: participation.participants_count)})"
           - if participation.carpooling?
             span title="#{participation.carpooling_phone.phony_formatted}"= ", covoiturage"
-          = ' –'
-          == link_to "&nbsp;annuler".html_safe, [:members, @member, participation], method: :delete
+          - if participation.destroyable?
+            = ' –'
+            == link_to "&nbsp;annuler".html_safe, [:members, @member, participation], method: :delete
+
+    - if @coming_participations.any? { |p| !destroyable? }
+      p Bla Bla bla
 
 section
   h2= "Inscription à une #{halfday_human_name.downcase}"
