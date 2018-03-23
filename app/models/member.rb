@@ -35,9 +35,10 @@ class Member < ActiveRecord::Base
   scope :with_name, ->(name) { where('members.name ILIKE ?', "%#{name}%") }
   scope :with_address, ->(address) { where('members.address ILIKE ?', "%#{address}%") }
   scope :gribouille, -> {
-    where(state: [WAITING_STATE, TRIAL_STATE, ACTIVE_STATE])
-      .where(gribouille: [nil, true])
-      .or(Member.where(support_member: true).where(gribouille: [nil, true]))
+    where(
+      state: [WAITING_STATE, TRIAL_STATE, ACTIVE_STATE],
+      gribouille: [nil, true])
+      .or(Member.where(support_member: true, gribouille: [nil, true]))
       .or(Member.where(gribouille: true))
   }
 
