@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_03_25_185352) do
+ActiveRecord::Schema.define(version: 2018_03_31_111311) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
@@ -290,6 +290,7 @@ ActiveRecord::Schema.define(version: 2018_03_25_185352) do
     t.string "state", default: "not_sent", null: false
     t.string "object_type"
     t.bigint "object_id"
+    t.integer "paid_missing_haldays_works"
     t.index ["member_id"], name: "index_invoices_on_member_id"
     t.index ["object_type", "object_id"], name: "index_invoices_on_object_type_and_object_id"
     t.index ["state"], name: "index_invoices_on_state"

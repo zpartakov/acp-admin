@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Invoice do
   it 'raises on amount=' do
-    expect { build(:invoice, amount: 1) }.to raise_error(NoMethodError)
+    expect { build(:invoice, :membership, amount: 1) }.to raise_error(NoMethodError)
   end
 
   it 'raises on balance=' do
@@ -75,7 +75,7 @@ describe Invoice do
 
     context 'when support present as well' do
       let(:invoice) do
-        create(:invoice, :membership, :support)
+        create(:invoice, :support, :membership)
       end
 
       specify { expect(invoice.support_amount).to be_present }

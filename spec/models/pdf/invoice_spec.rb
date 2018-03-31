@@ -160,6 +160,56 @@ describe PDF::Invoice do
         .and include('0100000332508>001104190802410000000000112+ 01137346>')
       expect(pdf_strings).not_to include 'Cotisation annuelle association'
     end
+
+    it 'generates invoice with HalfdayParticipation object' do
+      halfday = create(:halfday, date: '2018-3-4')
+      rejected_participation = create(:halfday_participation, :rejected,
+        halfday: halfday)
+      invoice = create(:invoice,
+        id: 2001,
+        date: '2018-4-5',
+        object: rejected_participation,
+        amount: 120,
+        paid_missing_haldays_works: 2)
+
+      pdf_strings = save_pdf_and_return_strings(invoice)
+
+      expect(pdf_strings)
+        .to contain_sequence('½ ', 'journée du 4 mars 2018 non-effectuée (2 participants)', '120.00')
+        .and contain_sequence('Total', '120.00')
+        .and include('0100000120000>001104190802410000000020015+ 01137346>')
+    end
+
+    it 'generates invoice with HalfdayParticipation type (one participant)' do
+      invoice = create(:invoice,
+        id: 2002,
+        date: '2018-4-5',
+        object_type: 'HalfdayParticipation',
+        amount: 60,
+        paid_missing_haldays_works: 1)
+
+      pdf_strings = save_pdf_and_return_strings(invoice)
+
+      expect(pdf_strings)
+        .to contain_sequence('½ ', 'journée non-effectuée', '60.00')
+        .and contain_sequence('Total', '60.00')
+        .and include('0100000060004>001104190802410000000020020+ 01137346>')
+    end
+    it 'generates invoice with HalfdayParticipation type (many participants)' do
+      invoice = create(:invoice,
+        id: 2003,
+        date: '2018-4-5',
+        object_type: 'HalfdayParticipation',
+        amount: 180,
+        paid_missing_haldays_works: 3)
+
+      pdf_strings = save_pdf_and_return_strings(invoice)
+
+      expect(pdf_strings)
+        .to contain_sequence('3 ', '½ ', 'journées non-effectuées', '180.00')
+        .and contain_sequence('Total', '180.00')
+        .and include('0100000180005>001104190802410000000020031+ 01137346>')
+    end
   end
 
   context 'Lumiere des Champs settings' do

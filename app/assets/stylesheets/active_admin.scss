@@ -67,6 +67,13 @@ form#edit_membership ol em {
   padding: 10px 15px 20px 15px;
 }
 
+form#new_invoice {
+  span.refused_halfday_participation {
+    line-height: 2em;
+    margin: 1em;
+  }
+}
+
 span.delivery_note {
   display: block;
   margin-top: 15px;

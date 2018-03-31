@@ -107,6 +107,10 @@ ActiveAdmin.register HalfdayParticipation do
     redirect_back fallback_location: collection_path
   end
 
+  action_item :invoice, only: :show, if: -> { authorized?(:create, Invoice) && resource.rejected? } do
+    link_to 'Facturer', new_invoice_path(halfday_participation_id: resource.id)
+  end
+
   controller do
     before_create do |participation|
       if participation.halfday.date.past?
