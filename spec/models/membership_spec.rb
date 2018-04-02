@@ -278,7 +278,7 @@ describe Membership do
       seasons: ['summer'])
 
     expect(membership.baskets_count).to eq 40
-    expect(membership.basket_sizes_price).to eq 22 * 2 * 30
+    expect(membership.basket_sizes_price).to eq 26 * 2 * 30
   end
 
   specify 'salary basket prices' do
